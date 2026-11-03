@@ -1,0 +1,28 @@
+data raw_dm;
+  infile datalines dsd truncover;
+  input SUBJID :$4. SITEID :$3. SEX :$1. AGE RACE :$25. TRT :$10. DOSEDT :$10.;
+datalines;
+1001,101,M,54,WHITE,Drug,2026-01-10
+1002,101,F,61,ASIAN,Placebo,2026-01-12
+1003,102,F,47,WHITE,Drug,2026-01-15
+1004,102,M,58,BLACK OR AFRICAN AMERICAN,Placebo,2026-01-18
+1005,103,M,66,ASIAN,Drug,2026-01-20
+1006,103,F,52,WHITE,Placebo,2026-01-22
+;
+run;
+
+data dm;
+  length STUDYID $8 DOMAIN $2 USUBJID $20 SUBJID $4 SITEID $3
+         AGE 8 AGEU $5 SEX $1 RACE $25 ARMCD $8 ARM $10 RFSTDTC $10;
+  set raw_dm;
+  STUDYID = "ABC123";
+  DOMAIN  = "DM";
+  USUBJID = catx("-", STUDYID, SITEID, SUBJID);
+  RFSTDTC = DOSEDT;
+  AGEU    = "YEARS";
+  ARM     = TRT;
+  ARMCD   = ifc(TRT="Drug", "DRUG", "PBO");
+  keep STUDYID DOMAIN USUBJID SUBJID RFSTDTC SITEID AGE AGEU SEX RACE ARMCD ARM;
+run;
+
+proc print data=dm; run;
